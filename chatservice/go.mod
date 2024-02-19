@@ -1,4 +1,4 @@
-module github.com/viktorhugodev/chatGPT-whatsapp/go
+module github.com/viktorhugodev/chatGPT-whatsapp/chatservice
 
 go 1.22.0
 
