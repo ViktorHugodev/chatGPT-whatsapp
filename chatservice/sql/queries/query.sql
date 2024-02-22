@@ -8,3 +8,9 @@ SELECT * FROM chats WHERE id = ?;
 
 -- name: AddMessage :exec
 INSERT INTO messages (id, chat_id, role, content, tokens, model, erased, order_msg, created_at) VALUES(?,?,?,?,?,?,?,?,?);
+
+-- name: FindMessagesByChatID :many
+SELECT * FROM messages WHERE erased=0 and chat_id = ? order by order_msg asc;
+
+-- name: FindErasedMessagesByChatID :many
+SELECT * FROM messages WHERE erased=1 and chat_id = ? order by order_msg asc;
