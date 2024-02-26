@@ -101,6 +101,10 @@ func (c *Chat) End() {
 	c.Status = "ended"
 }
 
+func (c *Chat) GetModelName() string {
+	return c.Config.Model.Name
+}
+
 func (c *Chat) RefreshTokenUsage() {
 	c.TokenUsage = 0
 	for m := range c.Messages {
