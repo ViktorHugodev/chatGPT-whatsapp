@@ -23,7 +23,7 @@ type Message struct {
 
 func NewMessage(role, content string, model *Model, messages []openai.ChatCompletionMessage) (*Message, error) {
 
-	totalTokens := NumTokensFromMessages(messages, model.GetModelName())
+	totalTokens := NumTokensFromMessages(messages, model.Name)
 	msg := &Message{
 		ID:        uuid.New().String(),
 		Role:      role,
