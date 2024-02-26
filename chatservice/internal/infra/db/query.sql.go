@@ -88,6 +88,24 @@ func (q *Queries) CreateChat(ctx context.Context, arg CreateChatParams) error {
 	return err
 }
 
+const deleteChatMessages = `-- name: DeleteChatMessages :exec
+DELETE FROM messages WHERE chat_id = ?
+`
+
+func (q *Queries) DeleteChatMessages(ctx context.Context, chatID string) error {
+	_, err := q.db.ExecContext(ctx, deleteChatMessages, chatID)
+	return err
+}
+
+const deleteErasedChatMessages = `-- name: DeleteErasedChatMessages :exec
+DELETE FROM messages WHERE erased=1 and chat_id = ?
+`
+
+func (q *Queries) DeleteErasedChatMessages(ctx context.Context, chatID string) error {
+	_, err := q.db.ExecContext(ctx, deleteErasedChatMessages, chatID)
+	return err
+}
+
 const findChatByID = `-- name: FindChatByID :one
 SELECT id, user_id, initial_message_id, status, token_usage, model, model_max_tokens, temperature, top_p, n, stop, max_tokens, presence_penalty, frequency_penalty, created_at, updated_at FROM chats WHERE id = ?
 `
@@ -188,4 +206,47 @@ func (q *Queries) FindMessagesByChatID(ctx context.Context, chatID string) ([]Me
 		return nil, err
 	}
 	return items, nil
+}
+
+const saveChat = `-- name: SaveChat :exec
+UPDATE chats SET user_id = ?, initial_message_id = ?, status = ?, token_usage = ?, model = ?, model_max_tokens=?, temperature = ?, top_p = ?, n = ?, stop = ?, max_tokens = ?, presence_penalty = ?, frequency_penalty = ?, updated_at = ? WHERE id = ?
+`
+
+type SaveChatParams struct {
+	UserID           string
+	InitialMessageID string
+	Status           string
+	TokenUsage       int32
+	Model            string
+	ModelMaxTokens   int32
+	Temperature      float64
+	TopP             float64
+	N                int32
+	Stop             string
+	MaxTokens        int32
+	PresencePenalty  float64
+	FrequencyPenalty float64
+	UpdatedAt        time.Time
+	ID               string
+}
+
+func (q *Queries) SaveChat(ctx context.Context, arg SaveChatParams) error {
+	_, err := q.db.ExecContext(ctx, saveChat,
+		arg.UserID,
+		arg.InitialMessageID,
+		arg.Status,
+		arg.TokenUsage,
+		arg.Model,
+		arg.ModelMaxTokens,
+		arg.Temperature,
+		arg.TopP,
+		arg.N,
+		arg.Stop,
+		arg.MaxTokens,
+		arg.PresencePenalty,
+		arg.FrequencyPenalty,
+		arg.UpdatedAt,
+		arg.ID,
+	)
+	return err
 }
