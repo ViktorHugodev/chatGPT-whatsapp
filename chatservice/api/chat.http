@@ -14,7 +14,7 @@ Content-Type: application/json
 Authorization: 123456
 
 {
-    "chat_id": "a14fc851-7e95-49b5-a5b5-44479434becd",
+    "chat_id": "ed4c9fd4-b8e9-4592-9730-1d25b742daf9",
     "user_id": "1",
-    "user_message": "continue"
+    "user_message": "Eu quero saber sobre o conflito armado na palestina, quem são os houthis?"
 }
