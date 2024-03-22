@@ -6,25 +6,24 @@ POST http://localhost:3000/api/chats
 Content-Type: application/json
 
 {
-  "message": "Mensagem de texto 1"
+  "message": "Mensagem de texto 2"
 }
 
 ###
 GET http://localhost:3000/api/chats
 
 ###
-@chatId = b1a23a46-f7f6-4c45-8435-f9173a1b525f
-
+@chatId = b0fffac5-c777-418c-b3d3-690d19e9a7da
 GET http://localhost:3000/api/chats/{{chatId}}/messages
-Authorization: Bearer {{token}}
+
 
 ###
 POST http://localhost:3000/api/chats/{{chatId}}/messages
 Content-Type: application/json
-Authorization: Bearer {{token}}
+# Authorization: Bearer {{token}}
 
 {
-  "message": "Estou testando a API 2222"
+  "message": "Estou testando a API Novamente"
 }
 
 ###
