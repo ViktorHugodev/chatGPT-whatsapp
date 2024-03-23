@@ -27,7 +27,7 @@ Content-Type: application/json
 }
 
 ###
-@messageId = 93359047-bb9e-4099-8206-29641f0551a6
+@messageId = 7a29937f-c264-4937-b877-53f906919b02
 GET http://localhost:3000/api/messages/{{messageId}}/events
 # Authorization: Bearer {{token}}
 

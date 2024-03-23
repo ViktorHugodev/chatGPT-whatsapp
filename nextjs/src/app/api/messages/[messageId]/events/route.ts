@@ -3,8 +3,6 @@ import { ChatServiceClientFactory } from '@/grpc/chat-service-client'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest, { params }: { params: { messageId: string } }) {
-  console.log('CHAMOU')
-
   const message = await prisma.message.findUniqueOrThrow({
     where: {
       id: params.messageId,
