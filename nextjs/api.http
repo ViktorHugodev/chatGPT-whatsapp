@@ -23,13 +23,13 @@ Content-Type: application/json
 # Authorization: Bearer {{token}}
 
 {
-  "message": "Estou testando a API Novamente"
+  "message": "Estou testando a API Novamente 33"
 }
 
 ###
-@messageId = d56cf557-17b5-4a9f-ac58-1f0be4bccbe3
+@messageId = 93359047-bb9e-4099-8206-29641f0551a6
 GET http://localhost:3000/api/messages/{{messageId}}/events
-Authorization: Bearer {{token}}
+# Authorization: Bearer {{token}}
 
 ###
 POST http://localhost:3000/api/generate-token
