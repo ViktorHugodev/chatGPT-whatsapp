@@ -3,6 +3,12 @@ import useSWR from 'swr'
 import { fetcher } from '@/http/http'
 import { PlusIcon } from './components/icons/PlusIcon'
 import { MessageIcon } from './components/icons/MessageIcon'
+import { Chat } from '@prisma/client'
+import { Message } from 'postcss'
+
+type ChatWithFirstMessage = Chat & {
+  messages: [Message]
+}
 
 // function ChatItemError({ children }: { children: any }) {
 //   return (
@@ -18,7 +24,7 @@ import { MessageIcon } from './components/icons/MessageIcon'
 // }
 const Loading = () => <span className='animate-spin bg-white h-6 w-[5px] rounded'></span>
 export default function Home() {
-  const { data: chats } = useSWR('chats', fetcher)
+  const { data: chats } = useSWR<ChatWithFirstMessage[]>('chats', fetcher)
   console.log('🚀 ~ Home ~ data:', chats)
   return (
     <div>
@@ -29,9 +35,10 @@ export default function Home() {
           onClick={() => {}}
         >
           <PlusIcon className='w-5 h-5' />
-          New chat
+          Novo chat
         </button>
         {/* -- end button new chat -- */}
+
         {/* -- chats -- */}
         <div className='flex-grow overflow-y-auto -mr-2 overflow-hidden'>
           {chats?.map((chat, key) => (
