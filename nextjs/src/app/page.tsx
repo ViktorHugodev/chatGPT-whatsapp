@@ -84,6 +84,13 @@ export default function Home() {
         form.requestSubmit(submitForm)
         return
       }
+      if (textArea.scrollHeight >= 200) {
+        textArea.style.overflowY = 'scroll'
+      } else {
+        textArea.style.overflowY = 'hidden'
+        textArea.style.height = 'auto'
+        textArea.style.height = textArea.scrollHeight + 'px'
+      }
     })
   }, [])
 
