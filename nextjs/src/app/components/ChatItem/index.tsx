@@ -24,12 +24,12 @@ export function ChatItem({
   return (
     <li className={`w-full text-gray-100 ${background}`}>
       <div className='flex-col'>
-        <div className='md:max-w-2xl lg:max-w-xl xl:max-w-3xl py-6 m-auto flex flex-row items-start space-x-4'>
+        <div className='md:max-w-2xl lg:max-w-xl xl:max-w-3xl py-6 m-auto flex flex-row items-start  space-x-4'>
           {is_from_bot ? (
-            // <Image src='/fullcycle_logo.png' width={30} height={30} alt='' />
-            <UserIcon className='w-[30px] flex flex-col relative start bg-red-500' />
+            <Image src='/logo-robot.png' width={30} height={30} alt='' />
           ) : (
-            <UserIcon className='w-[30px] flex flex-col relative start' />
+            <UserIcon className='w-[30px] flex flex-col relative start bg-red-500' />
+            // <UserIcon className='w-[30px] flex flex-col relative end' />
           )}
 
           <div
