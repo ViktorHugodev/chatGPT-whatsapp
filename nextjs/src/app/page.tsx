@@ -8,7 +8,7 @@ import { Message } from 'postcss'
 import { ArrowRightIcon } from './components/icons/ArrowRightIcon'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { FormEvent } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 type ChatWithFirstMessage = Chat & {
   messages: [Message]
 }
@@ -30,31 +30,52 @@ const Loading = () => <span className='animate-spin bg-white h-6 w-[5px] rounded
 export default function Home() {
   const router = useRouter()
   const searchParams = useSearchParams()
-
   const chatIdParam = searchParams.get('id')
-
+  const [chatId, setChatId] = useState(chatIdParam)
   const { data: chats, mutate: mutateChats } = useSWR<ChatWithFirstMessage[]>('chats', fetcher, {
     fallbackData: [],
     revalidateOnFocus: false,
   })
   const { data: messages, mutate: mutateMessages } = useSWR<Message[]>(
-    chatIdParam ? `chats/${chatIdParam}/messages` : null,
+    chatId ? `chats/${chatId}/messages` : null,
     fetcher,
     {
       fallbackData: [],
       revalidateOnFocus: false,
     },
   )
+  useEffect(() => {
+    setChatId(chatIdParam)
+  }, [chatIdParam])
+
+  useEffect(() => {
+    const textArea = document.querySelector('#message') as HTMLTextAreaElement
+    textArea?.addEventListener('keydown', event => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault()
+      }
+    })
+    textArea?.addEventListener('keyup', event => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        const form = document.querySelector('#form') as HTMLFormElement
+        const submitForm = form?.querySelector('button') as HTMLButtonElement
+        form.requestSubmit(submitForm)
+        return
+      }
+    })
+  }, [])
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const textArea = event.currentTarget.querySelector('textarea') as HTMLTextAreaElement
     const message = textArea?.value
-    console.log('🚀 ~ onSubmit ~ message:', message)
-    if (!chatIdParam) {
+
+    if (!chatId) {
       const newChat = await ClientHttp.post(`chats`, { message })
+      setChatId(newChat.id)
       mutateChats([newChat, ...chats!], false)
     } else {
-      const newMessage = await ClientHttp.post(`chats/${chatIdParam}/messages`, { message })
+      const newMessage = await ClientHttp.post(`chats/${chatId}/messages`, { message })
       mutateMessages([...messages!, newMessage], false)
     }
 
