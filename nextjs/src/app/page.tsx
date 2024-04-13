@@ -9,6 +9,8 @@ import { ArrowRightIcon } from './components/icons/ArrowRightIcon'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { FormEvent, useEffect, useState } from 'react'
+import useSWRSubscription from 'swr/subscription'
+import { ChatItem } from './components/ChatItem'
 type ChatWithFirstMessage = Chat & {
   messages: [Message]
 }
@@ -31,7 +33,9 @@ export default function Home() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const chatIdParam = searchParams.get('id')
-  const [chatId, setChatId] = useState(chatIdParam)
+  const [chatId, setChatId] = useState<string | null>(chatIdParam)
+  const [messageId, setMessageId] = useState<string | null>(null)
+
   const { data: chats, mutate: mutateChats } = useSWR<ChatWithFirstMessage[]>('chats', fetcher, {
     fallbackData: [],
     revalidateOnFocus: false,
@@ -44,6 +48,36 @@ export default function Home() {
       revalidateOnFocus: false,
     },
   )
+  const { data: messageLoading, error: errorMessageLoading } = useSWRSubscription(
+    messageId ? `/api/messages/${messageId}/events` : null,
+    (path: string, { next }) => {
+      console.log('event initiated')
+      const eventSource = new EventSource(path)
+      eventSource.onmessage = event => {
+        console.log('🚀 ~ useSWRSubscription onmessage ~ event:', event)
+        const newMessage = JSON.parse(event.data)
+        next(null, newMessage.content)
+      }
+      eventSource.onerror = event => {
+        console.log('🚀 ~ useSWRSubscription onerror ~ event:', event)
+        eventSource.close()
+        //@ts-ignore
+        next(event.data, null)
+      }
+      eventSource.addEventListener('end', event => {
+        console.log('🚀 ~ useSWRSubscription onend ~ event:', event)
+        eventSource.close()
+        const newMessage = JSON.parse(event.data)
+        mutateMessages(messages => [...messages!, newMessage], false)
+        next(null, null)
+      })
+      return () => {
+        console.log('close event source')
+        eventSource.close()
+      }
+    },
+  )
+
   useEffect(() => {
     setChatId(chatIdParam)
   }, [chatIdParam])
@@ -71,12 +105,14 @@ export default function Home() {
     const message = textArea?.value
 
     if (!chatId) {
-      const newChat = await ClientHttp.post(`chats`, { message })
-      setChatId(newChat.id)
+      const newChat: ChatWithFirstMessage = await ClientHttp.post(`chats`, { message })
       mutateChats([newChat, ...chats!], false)
+      setChatId(newChat.id)
+      setMessageId(newChat.messages[0].id)
     } else {
       const newMessage = await ClientHttp.post(`chats/${chatId}/messages`, { message })
       mutateMessages([...messages!, newMessage], false)
+      setMessageId(newMessage.id)
     }
 
     textArea.value = ''
@@ -122,23 +158,13 @@ export default function Home() {
               {message.content}
             </li>
           ))}
-          {/* {messages?.map((message, key) => (
-            <ChatItem
-              key={key}
-              content={message.content}
-              is_from_bot={message.is_from_bot}
-            />
+          {messages?.map((message, key) => (
+            <ChatItem key={key} content={message.content} is_from_bot={message.is_from_bot} />
           ))}
           {messageLoading && (
-            <ChatItem
-              content={messageLoading}
-              is_from_bot={true}
-              loading={true}
-            />
+            <ChatItem content={messageLoading} is_from_bot={true} loading={true} />
           )}
-          {errorMessageLoading && (
-            <ChatItemError>{errorMessageLoading}</ChatItemError>
-          )} */}
+          {errorMessageLoading && <ChatItemError>{errorMessageLoading}</ChatItemError>}
           <li className='h-36 bg-gray-800'></li>
         </ul>
 
