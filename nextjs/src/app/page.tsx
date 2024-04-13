@@ -8,7 +8,7 @@ import { Message } from 'postcss'
 import { ArrowRightIcon } from './components/icons/ArrowRightIcon'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { FormEvent, useEffect, useState } from 'react'
+import { FormEvent, useEffect, useLayoutEffect, useState } from 'react'
 import useSWRSubscription from 'swr/subscription'
 import { ChatItem } from './components/ChatItem'
 import { ChatItemError } from './components/ChatItemError'
@@ -93,7 +93,13 @@ export default function Home() {
       }
     })
   }, [])
-
+  useLayoutEffect(() => {
+    if (!messageLoading) {
+      return
+    }
+    const chatting = document.querySelector('#chatting') as HTMLUListElement
+    chatting.scrollTop = chatting.scrollHeight
+  }, [messageLoading])
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const textArea = event.currentTarget.querySelector('textarea') as HTMLTextAreaElement
