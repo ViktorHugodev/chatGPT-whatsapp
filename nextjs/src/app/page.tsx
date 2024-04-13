@@ -1,6 +1,6 @@
 'use client'
 import useSWR from 'swr'
-import { fetcher } from '@/http/http'
+import ClientHttp, { fetcher } from '@/http/http'
 import { PlusIcon } from './components/icons/PlusIcon'
 import { MessageIcon } from './components/icons/MessageIcon'
 import { Chat } from '@prisma/client'
@@ -8,6 +8,7 @@ import { Message } from 'postcss'
 import { ArrowRightIcon } from './components/icons/ArrowRightIcon'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { FormEvent } from 'react'
 type ChatWithFirstMessage = Chat & {
   messages: [Message]
 }
@@ -29,18 +30,36 @@ const Loading = () => <span className='animate-spin bg-white h-6 w-[5px] rounded
 export default function Home() {
   const router = useRouter()
   const searchParams = useSearchParams()
+
   const chatIdParam = searchParams.get('id')
-  const { data: chats } = useSWR<ChatWithFirstMessage[]>('chats', fetcher, {
+
+  const { data: chats, mutate: mutateChats } = useSWR<ChatWithFirstMessage[]>('chats', fetcher, {
     fallbackData: [],
+    revalidateOnFocus: false,
   })
-  const { data: messages } = useSWR<Message[]>(
+  const { data: messages, mutate: mutateMessages } = useSWR<Message[]>(
     chatIdParam ? `chats/${chatIdParam}/messages` : null,
     fetcher,
     {
       fallbackData: [],
+      revalidateOnFocus: false,
     },
   )
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const textArea = event.currentTarget.querySelector('textarea') as HTMLTextAreaElement
+    const message = textArea?.value
+    console.log('🚀 ~ onSubmit ~ message:', message)
+    if (!chatIdParam) {
+      const newChat = await ClientHttp.post(`chats`, { message })
+      mutateChats([newChat, ...chats!], false)
+    } else {
+      const newMessage = await ClientHttp.post(`chats/${chatIdParam}/messages`, { message })
+      mutateMessages([...messages!, newMessage], false)
+    }
 
+    textArea.value = ''
+  }
   return (
     <div className='overflow-hidden w-full h-full relative flex'>
       {/* SIDE BAR */}
@@ -48,7 +67,7 @@ export default function Home() {
         {/* -- button new chat -- */}
         <button
           className='flex p-3 gap-3 rounded hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm mb-1 border border-white/20'
-          onClick={() => {}}
+          onClick={() => router.push('/')}
         >
           <PlusIcon className='w-5 h-5' />
           Novo chat
@@ -104,7 +123,7 @@ export default function Home() {
 
         <div className='absolute bottom-0 w-full !bg-transparent bg-gradient-to-b from-gray-800 to-gray-950'>
           <div className='mb-6 mx-auto max-w-3xl'>
-            <form id='form' onSubmit={() => {}}>
+            <form id='form' onSubmit={onSubmit}>
               <div className='flex flex-col py-3 pl-4 relative text-white bg-gray-700 rounded'>
                 <textarea
                   id='message'
@@ -112,7 +131,6 @@ export default function Home() {
                   rows={1}
                   placeholder='Digite sua pergunta'
                   className='resize-none pr-14 bg-transparent pl-0 outline-none'
-                  defaultValue='Gere uma classe de produto em JavaScript'
                 ></textarea>
                 <button
                   type='submit'

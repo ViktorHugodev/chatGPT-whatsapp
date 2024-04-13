@@ -7,7 +7,7 @@ interface GetMessagesProps {
   }
 }
 export async function GET(_request: NextRequest, { params }: GetMessagesProps) {
-  console.log('params GET')
+  console.log('params GET:', params)
   const messages = await prisma.message.findMany({
     where: {
       chat_id: params.chatId,
