@@ -6,28 +6,16 @@ import { MessageIcon } from './components/icons/MessageIcon'
 import { Chat } from '@prisma/client'
 import { Message } from 'postcss'
 import { ArrowRightIcon } from './components/icons/ArrowRightIcon'
-import Image from 'next/image'
+
 import { useRouter, useSearchParams } from 'next/navigation'
 import { FormEvent, useEffect, useState } from 'react'
 import useSWRSubscription from 'swr/subscription'
 import { ChatItem } from './components/ChatItem'
+import { ChatItemError } from './components/ChatItemError'
+
 type ChatWithFirstMessage = Chat & {
   messages: [Message]
 }
-
-function ChatItemError({ children }: { children: any }) {
-  return (
-    <li className='w-full text-gray-100 bg-gray-800'>
-      <div className='md:max-w-2xl lg:max-w-xl xl:max-w-3xl py-6 m-auto flex flex-row items-start space-x-4'>
-        <Image src='/logo-robot.png' width={30} height={30} alt='' />
-        <div className='relative w-[calc(100%-115px)] flex flex-col gap-1'>
-          <span className='text-red-500'>Ops! Ocorreu um erro: {children}</span>
-        </div>
-      </div>
-    </li>
-  )
-}
-const Loading = () => <span className='animate-spin bg-white h-6 w-[5px] rounded'></span>
 
 export default function Home() {
   const router = useRouter()
@@ -153,11 +141,6 @@ export default function Home() {
       {/* MAIN CONTENT */}
       <div className='flex-1 flex-col relative'>
         <ul id='chatting' className='h-screen overflow-y-auto bg-gray-800'>
-          {messages!.map((message, key) => (
-            <li className='text-white' key={message.id}>
-              {message.content}
-            </li>
-          ))}
           {messages?.map((message, key) => (
             <ChatItem key={key} content={message.content} is_from_bot={message.is_from_bot} />
           ))}
@@ -182,7 +165,7 @@ export default function Home() {
                 <button
                   type='submit'
                   className='absolute top-1 text-gray-400 bottom-2.5 rounded hover:text-gray-400 hover:bg-gray-900 md:right-4'
-                  // disabled={messageLoading}
+                  disabled={messageLoading}
                 >
                   <ArrowRightIcon className='text-white-500 w-8' />
                 </button>
