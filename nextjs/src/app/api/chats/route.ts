@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
-  console.log('🚀 ~ POST ~ body:', body)
   const chatCreated = await prisma.chat.create({
     data: {
       messages: {
@@ -22,7 +21,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  console.log('🚀 ~ GET ~ request:')
+  console.log('🚀 ~ GET ~ request:', request)
   const chats = await prisma.chat.findMany({
     select: {
       id: true,
