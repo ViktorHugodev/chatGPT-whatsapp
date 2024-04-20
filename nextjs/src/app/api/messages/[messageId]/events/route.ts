@@ -60,7 +60,6 @@ export const GET = async (request: NextRequest, { params }: { params: { messageI
   })
   let messageReceived: { content: string; chatId: string } | null = null
   stream.on('data', data => {
-    console.log(`data: ${JSON.stringify(data)}`)
     messageReceived = data
     writeStream(writer, 'message', data)
   })

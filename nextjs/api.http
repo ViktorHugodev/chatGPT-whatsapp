@@ -1,26 +1,30 @@
 GET http://localhost:3000/api/hello
 
-@token = eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..XnskWOEMEV-7teRh.Kfx1uSJGTBQzhMdy_gaDlCNz_Lz9UvSeKBCMBPHdKOZmN-WoZZRkOrFwmdbBDfKjRg7Y48VnP_9-K5xkUP4H6nGeCvc9ovRvuKlGFKm2ja_E3CjYjGLHRFLjrcYIu3qb9YPNYIZ41leztsY20HPbtQ7lyxUjKYwjDKvU3e59hvg8QNjc3dQyglaCvzs.TIHDzzl-FrxwwH3hKFr1Wg
+@token = eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..CEImIwBu5-vdyDaF.cFd2W-l31ItpC7f6mTrzrzd7WsBEViP9oVOVT3bRZM9MzeZ7WWokIj69i1pV2Q0GdWvV0p8FcsYes85sLC9wtteK5VKLX5Z24H0LxPoj8ujTdCvrxZ0sFesuMws-hnhZwbSNCLV91g8JueQaphsyzfbvI3SQFLOIDoeSJI3XLeUr5JEx6H3R0zKdNt8.LVbmjeC9OaHSEfvU29axHw
+@chatId = 323c993e-27c2-41cd-a787-4fc1690ac716
 ###
 POST http://localhost:3000/api/chats
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
-  "message": "Mensagem de texto 2"
+  "message": "Qual sua missão aqui?"
 }
 
 ###
 GET http://localhost:3000/api/chats
-
+Content-Type: application/json
+Authorization: Bearer {{token}}
 ###
-@chatId = b0fffac5-c777-418c-b3d3-690d19e9a7da
-GET http://localhost:3000/api/chats/{{chatId}}/messages
 
+GET http://localhost:3000/api/chats/{{chatId}}/messages
+Content-Type: application/json
+Authorization: Bearer {{token}}
 
 ###
 POST http://localhost:3000/api/chats/{{chatId}}/messages
 Content-Type: application/json
-# Authorization: Bearer {{token}}
+Authorization: Bearer {{token}}
 
 {
   "message": "Estou testando a API Novamente 33"
@@ -29,7 +33,7 @@ Content-Type: application/json
 ###
 @messageId = 7a29937f-c264-4937-b877-53f906919b02
 GET http://localhost:3000/api/messages/{{messageId}}/events
-# Authorization: Bearer {{token}}
+Authorization: Bearer {{token}}
 
 ###
 POST http://localhost:3000/api/generate-token
