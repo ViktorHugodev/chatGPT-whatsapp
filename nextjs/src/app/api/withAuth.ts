@@ -12,6 +12,7 @@ export function withAuth(routeHandler: RouteHandler) {
   return async function (req: NextRequest, config: Config) {
     console.log('🚀 ~ config:', config)
     const token = await getToken({ req })
+    console.log('🚀 ~ token:', token)
     if (!token) {
       return NextResponse.json({ error: 'Not authorized' }, { status: 401 })
     }

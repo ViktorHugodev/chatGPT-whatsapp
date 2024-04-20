@@ -2,16 +2,18 @@ import { prisma } from '@/app/prisma/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '../withAuth'
 
-export const POST = withAuth(async (request: NextRequest) => {
+export const POST = withAuth(async (request: NextRequest, token) => {
   const body = await request.json()
   const chatCreated = await prisma.chat.create({
     data: {
+      user_id: token.sub!,
       messages: {
         create: {
           content: body.message,
         },
       },
     },
+
     select: {
       id: true,
       messages: true,
@@ -21,8 +23,11 @@ export const POST = withAuth(async (request: NextRequest) => {
   return NextResponse.json(chatCreated)
 })
 
-export const GET = withAuth(async (_request: NextRequest) => {
+export const GET = withAuth(async (_request: NextRequest, token) => {
   const chats = await prisma.chat.findMany({
+    where: {
+      user_id: token.sub!,
+    },
     select: {
       id: true,
       messages: {
