@@ -1,23 +1,21 @@
 'use client'
 
 import { signIn, useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
-export default function LoginPage(){
-  const {status: statusAuth} = useSession()
+export default function LoginPage() {
+  const { status: statusAuth } = useSession()
   const router = useRouter()
-  console.log('🚀 ~ LoginPage ~ statusAuth:', statusAuth)
 
-
-  useEffect(() =>{
-    if(statusAuth === 'authenticated'){
+  useEffect(() => {
+    if (statusAuth === 'authenticated') {
       router.push('/')
     }
-    if(statusAuth === 'unauthenticated'){
-      signIn('keycloack')
+    if (statusAuth === 'unauthenticated') {
+      signIn('keycloak')
     }
-  },[statusAuth, router])
+  }, [statusAuth, router])
 
-  return <div>Loading...</div>
+  return <div>Carregando...</div>
 }

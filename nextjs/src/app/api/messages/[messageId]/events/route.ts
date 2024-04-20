@@ -1,20 +1,20 @@
-import { withAuth } from '@/app/api/withAuth'
-import { prisma } from '@/app/prisma/prisma'
-import { ChatServiceClientFactory } from '@/grpc/chat-service-client'
+import { NextRequest } from 'next/server'
+import { prisma } from '../../../../prisma/prisma'
+import { ChatServiceClientFactory } from '../../../../../grpc/chat-service-client'
 import { getToken } from 'next-auth/jwt'
-import { NextRequest, NextResponse } from 'next/server'
 
-export const GET = async (request: NextRequest, { params }: { params: { messageId: string } }) => {
-  const token = await getToken({ req: request })
-
+export async function GET(request: NextRequest, { params }: { params: { messageId: string } }) {
   const transformStream = new TransformStream()
   const writer = transformStream.writable.getWriter()
+
+  const token = await getToken({ req: request })
 
   if (!token) {
     setTimeout(async () => {
       writeStream(writer, 'error', 'Unauthenticated')
       await writer.close()
     }, 100)
+
     return response(transformStream, 401)
   }
 
@@ -29,9 +29,10 @@ export const GET = async (request: NextRequest, { params }: { params: { messageI
 
   if (message.chat.user_id !== token.sub) {
     setTimeout(async () => {
-      writeStream(writer, 'error', 'Not found')
+      writeStream(writer, 'error', 'Not Found')
       await writer.close()
     }, 100)
+
     return response(transformStream, 404)
   }
 
@@ -60,6 +61,7 @@ export const GET = async (request: NextRequest, { params }: { params: { messageI
   })
   let messageReceived: { content: string; chatId: string } | null = null
   stream.on('data', data => {
+    console.log(`data: ${JSON.stringify(data)}`)
     messageReceived = data
     writeStream(writer, 'message', data)
   })
@@ -134,3 +136,5 @@ function writeStream(writer: WritableStreamDefaultWriter, event: Event, data: an
   const streamData = typeof data === 'string' ? data : JSON.stringify(data)
   writer.write(encoder.encode(`data: ${streamData}\n\n`))
 }
+
+export const dynamic = 'force-dynamic'

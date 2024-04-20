@@ -1,5 +1,5 @@
-import { prisma } from '@/app/prisma/prisma'
 import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '../../prisma/prisma'
 import { withAuth } from '../withAuth'
 
 export const POST = withAuth(async (request: NextRequest, token) => {
@@ -13,7 +13,6 @@ export const POST = withAuth(async (request: NextRequest, token) => {
         },
       },
     },
-
     select: {
       id: true,
       messages: true,
@@ -26,14 +25,12 @@ export const POST = withAuth(async (request: NextRequest, token) => {
 export const GET = withAuth(async (_request: NextRequest, token) => {
   const chats = await prisma.chat.findMany({
     where: {
-      user_id: token.sub!,
+      user_id: token.sub,
     },
     select: {
       id: true,
       messages: {
-        orderBy: {
-          created_at: 'asc',
-        },
+        orderBy: { created_at: 'asc' },
         take: 1,
       },
     },

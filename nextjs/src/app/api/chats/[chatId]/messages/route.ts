@@ -1,52 +1,50 @@
-import { withAuth } from '@/app/api/withAuth'
-import { prisma } from '@/app/prisma/prisma'
 import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '../../../../prisma/prisma'
+import { withAuth } from '@/app/api/withAuth'
 
-interface GetMessagesProps {
-  params: {
-    chatId: string
-  }
-}
-export const GET = withAuth(async (_request: NextRequest, token, { params }) => {
-  console.log('params GET:', params)
-  const chat = await prisma.chat.findUniqueOrThrow({
-    where: {
-      id: params.chatId,
-    },
-  })
-  if (chat.user_id !== token.sub) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  }
+export const GET = withAuth(
+  async (_request: NextRequest, token, { params }: { params: { chatId: string } }) => {
+    const chat = await prisma.chat.findUniqueOrThrow({
+      where: {
+        id: params.chatId,
+      },
+    })
 
-  const messages = await prisma.message.findMany({
-    where: {
-      chat_id: params.chatId,
-    },
-    orderBy: {
-      created_at: 'asc',
-    },
-  })
+    if (chat.user_id !== token.sub) {
+      return NextResponse.json({ error: 'Not Found' }, { status: 404 })
+    }
 
-  return NextResponse.json(messages)
-})
-export const POST = withAuth(async (request: NextRequest, token, { params }: GetMessagesProps) => {
-  const body = await request.json()
-  const chat = await prisma.chat.findUniqueOrThrow({
-    where: {
-      id: params.chatId,
-    },
-  })
+    const messages = await prisma.message.findMany({
+      where: {
+        chat_id: params.chatId,
+      },
+      orderBy: { created_at: 'asc' },
+    })
 
-  if (chat.user_id !== token.sub) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  }
+    return NextResponse.json(messages)
+  },
+)
 
-  const message = await prisma.message.create({
-    data: {
-      content: body.message,
-      chat_id: params.chatId,
-    },
-  })
+export const POST = withAuth(
+  async (request: NextRequest, token, { params }: { params: { chatId: string } }) => {
+    const chat = await prisma.chat.findUniqueOrThrow({
+      where: {
+        id: params.chatId,
+      },
+    })
 
-  return NextResponse.json(message)
-})
+    if (chat.user_id !== token.sub) {
+      return NextResponse.json({ error: 'Not Found' }, { status: 404 })
+    }
+
+    const body = await request.json()
+    const messageCreated = await prisma.message.create({
+      data: {
+        content: body.message,
+        chat_id: chat.id,
+      },
+    })
+
+    return NextResponse.json(messageCreated)
+  },
+)
