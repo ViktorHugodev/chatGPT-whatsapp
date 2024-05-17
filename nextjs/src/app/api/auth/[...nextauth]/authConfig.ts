@@ -5,8 +5,8 @@ export const authConfig = {
     KeycloakProvider({
       clientId: process.env.KEYCLOAK_ID as string,
       clientSecret: process.env.KEYCLOAK_SECRET as string,
-      // issuer: process.env.KEYCLOAK_ISSUER as string,:
-      issuer: 'http://localhost:9000/realms/master',
+      issuer: process.env.KEYCLOAK_ISSUER as string,
+      // issuer: 'http://localhost:9000/realms/master',
     }),
   ],
 }
