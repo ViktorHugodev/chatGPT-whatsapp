@@ -12,6 +12,9 @@ import { FormEvent, useEffect, useLayoutEffect, useState } from 'react'
 import useSWRSubscription from 'swr/subscription'
 import { ChatItem } from './components/ChatItem'
 import { ChatItemError } from './components/ChatItemError'
+import LogoutButton from './components/LogoutItem'
+import { signOut } from 'next-auth/react'
+import { LogoutIcon } from './components/icons/LogoutIcon'
 
 type ChatWithFirstMessage = Chat & {
   messages: [Message]
@@ -118,6 +121,14 @@ export default function Home() {
 
     textArea.value = ''
   }
+
+  async function logout() {
+    await signOut({ redirect: false })
+    const { url: logoutUrl } = await ClientHttp.get(
+      `logout-url?${new URLSearchParams({ redirect: window.location.origin })}`,
+    )
+    window.location.href = logoutUrl
+  }
   return (
     <div className='overflow-hidden w-full h-full relative flex'>
       {/* SIDE BAR */}
@@ -125,7 +136,11 @@ export default function Home() {
         {/* -- button new chat -- */}
         <button
           className='flex p-3 gap-3 rounded hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm mb-1 border border-white/20'
-          onClick={() => router.push('/')}
+          onClick={() => {
+            router.push('/')
+            setChatId(null)
+            setMessageId(null)
+          }}
         >
           <PlusIcon className='w-5 h-5' />
           Novo chat
@@ -149,6 +164,14 @@ export default function Home() {
             </div>
           ))}
         </div>
+
+        <button
+          className='flex p-3 mt-1 gap-3 rounded hover:bg-gray-500/10 text-sm text-white'
+          onClick={() => logout()}
+        >
+          <LogoutIcon className='h-5 w-5' />
+          Log out
+        </button>
       </div>
       {/* END SIDEBAR */}
       {/* MAIN CONTENT */}
