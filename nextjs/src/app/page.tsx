@@ -149,7 +149,7 @@ export default function Home() {
               >
                 <MessageIcon className='h-5 w-5' />
                 <div className='max-h-5 overflow-hidden break-all relative w-full text-left'>
-                  {chat.messages[0].content}
+                  {chat.messages[0]?.content}
                   <div className='absolute inset-y-0 right-0 w-8 z-10 bg-gradient-to-l from-gray-900 group-hover:from-[#3f4679]'></div>
                 </div>
               </button>
