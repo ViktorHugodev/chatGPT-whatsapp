@@ -4,7 +4,7 @@ import ClientHttp from '@/http/http'
 
 const LogoutButton = () => {
   const handleLogout = async () => {
-    await signOut({ redirect: true })
+    await signOut({ redirect: false })
     const { url: logoutUrl } = await ClientHttp.get(
       `logout-url?${new URLSearchParams({ redirect: window.location.origin })}`,
     )
