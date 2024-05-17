@@ -22,7 +22,13 @@ type Message struct {
 }
 
 func NewMessage(role, content string, model *Model, messages []openai.ChatCompletionMessage) (*Message, error) {
-
+	// Ensure the model is set to gpt-4-turbo by default if it's not already set
+	if model.Name == "" {
+		model.Name = "gpt-4-turbo"
+	} else if !strings.HasPrefix(model.Name, "gpt-4") && !strings.HasPrefix(model.Name, "gpt-4-turbo") {
+		// Force the model to gpt-4-turbo if not already set to a gpt-4 variant
+		model.Name = "gpt-4-turbo"
+	}
 	totalTokens := NumTokensFromMessages(messages, model.Name)
 	msg := &Message{
 		ID:        uuid.New().String(),
@@ -56,6 +62,7 @@ func (m *Message) GetQtdTokens() int {
 }
 
 func NumTokensFromMessages(messages []openai.ChatCompletionMessage, model string) (numTokens int) {
+	log.Printf("Using model version: %s", model)
 	tkm, err := tiktoken.EncodingForModel(model)
 	if err != nil {
 		err = fmt.Errorf("encoding for model: %v", err)
@@ -65,12 +72,15 @@ func NumTokensFromMessages(messages []openai.ChatCompletionMessage, model string
 
 	var tokensPerMessage, tokensPerName int
 	switch model {
-	case "gpt-3.5-turbo-0613",
+	case
+		"gpt-4-turbo-16k-0613",
+		"gpt-4-0613",
+		"gpt-3.5-turbo-0613",
 		"gpt-3.5-turbo-16k-0613",
 		"gpt-4-0314",
 		"gpt-4-32k-0314",
-		"gpt-4-0613",
-		"gpt-4-32k-0613":
+		"gpt-4-32k-0613",
+		"gpt-4-turbo-0613": // Novas versões do GPT-4-turbo
 		tokensPerMessage = 3
 		tokensPerName = 1
 	case "gpt-3.5-turbo-0301":
